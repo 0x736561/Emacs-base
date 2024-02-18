@@ -1,0 +1,341 @@
+#+TITLE:	Minha configuração do Emacs
+#+DESCRIPTION:	minhas configurações e funções do emacs.
+#+AUTHOR:	0x736561
+#+STARTUP:	overview
+
+Essa configuração é extremamente simples, quase
+não tem pacotes externos. Os poucos pacotes que
+são instalados por essa configuração servem 
+apenas para: configurar previsão de teclas de
+atalho, previsão de digitação, e um tema.
+
+Isso é algo que estou fazendo para ter uma 
+configuração minimalista, rápida, eficiente, e 
+sem risco de quebrar.
+
+* configurações
+** configuração visual
+Remoção das barras de ferramentas, menus, barra 
+de rolagem, enfim, deixando a aparência do Emacs 
+mais minimalista.
+
+Também configurando o comportamento padrão do Emacs
+(Certas coisas foram feitas para serem mudadas).
+
+*** removendo poluição visual
+#+begin_src emacs-lisp
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(toggle-scroll-bar -1)
+(scroll-bar-mode -1)
+(setq inhibit-startup-screen t)
+#+end_src
+
+*** outras coisas
+#+begin_src emacs-lisp
+(delete-selection-mode 1)
+(electric-indent-mode -1)
+(electric-pair-mode 1)
+(blink-cursor-mode -1)
+(global-hl-line-mode +1)
+(line-number-mode +1)
+(global-display-line-numbers-mode +1)
+(column-number-mode t)
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)  
+(size-indication-mode t)
+(global-prettify-symbols-mode t)
+(global-hl-line-mode)
+(set-face-attribute 'tool-bar nil
+                    :inverse-video nil
+                    :background "#121212"
+                    :foreground "e1e1e1"
+                    :bold t)
+(set-face-attribute 'menu nil
+                    :inverse-video nil
+                    :background "#121212"
+                    :foreground "#e1e1e1"
+                    :bold t)
+(setq frame-title-format
+      '((:eval (if (buffer-file-name)
+		   (abbreviate-file-name (buffer-file-name))
+		 "%b"))))
+(setq scroll-margin 0
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
+#+end_src
+
+*** fontes
+#+begin_src emacs-lisp
+(set-frame-font "JetBrainsMono 10" t)
+#+end_src
+
+*** tema
+#+begin_src emacs-lisp
+(load-theme 'leuven-dark t)
+#+end_src
+
+*** utf-8
+Deixando a codificação padrão como "utf-8".
+#+begin_src emacs-lisp
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+#+end_src
+
+** variáveis globais
+#+begin_src emacs-lisp
+(setq use-file-dialog nil)
+(setq use-dialog-box nil)
+(setq pop-up-windows nil)
+(setq backup-directory-alist '(("." . "~/.config/emacs/backups/")))
+(setq org-src-fontify-natively t)
+(setq org-support-shift-select t)
+(setq org-edit-src-content-indentation 0)
+(setq epa-pinentry-mode 'loopback)
+#+end_src
+
+** pacotes
+*** nativos
+**** ido-mode
+auto-completar arquivos no minibuffer
+#+begin_src emacs-lisp
+(ido-mode 1)
+#+end_src
+**** easypg
+cliente pgp nativo do Emacs.
+#+begin_src emacs-lisp
+(require 'epa-file)
+(epa-file-enable)
+(setq epa-file-encrypt-to "john@doe.com")
+(setq epa-file-select-keys -1)
+#+end_src
+
+**** email
+Configuração de email, no Emacs. Extremamente simples e com 
+apenas uma dependência externa: mailutils.
+
+Para instalar no Alpine é só entrar [[https://pkgs.alpinelinux.org/package/edge/testing/x86/mailutils][aqui]].
+
+Depois de instalar o mailutils, é só abrir o emacs e usar o 
+rmail como bem entender. 
+
+Eu fiz uma gambiarra sem precedentes para conseguir ter uma
+forma do rmail ler um arquivo gpg como senha, mas, tenho
+orgulho dessa gambiarra.
+
+Opções extras:
+
+- rmail-preserve-inbox 1/nil  [não excluir emails do servidor após download.]
+                              [sinceramente, se for pra ter email, que não  ]
+                              [esteja em algum lugar fora do meu computador.]
+
+- rmail-mail-new-frame 1/nil  [abrir cada email em um novo frame.           ]
+                              [não tem porque usar isso aqui.               ]
+
+
+#+begin_src emacs-lisp
+
+(setenv "MAILHOST" "[IMAP/POP].HOST")
+(setq 
+ rmail-delete-after-output 1                
+ rmail-mime-prefer-html nil
+ smtpmail-smtp-server "mail.cock.li"
+ smtpmail-smtp-service 587
+ smtpmail-stream-type 'starttls
+ send-mail-function 'smtpmail-send-it       
+)
+(load-library "smtpmail")
+
+(defun senha/mail()
+  (epa-decrypt-file "~/.authinfo.gpg" ">/dev/null")
+  (setq senha (shell-command-to-string "gpg -dq ~/.config/emacs/mail/pass.gpg")))
+(defun mail/box()
+  (interactive)
+  (senha/mail)
+  (setenv "MAIL"
+	  (concat "imaps://"
+		  "USUARIO%40HOST"
+		   senha
+		  "@[IMAP/POP].HOST"))
+
+  (setq                 
+   rmail-file-name   "~/.config/emacs/mail/inbox"           
+   rmail-secondary-file-directory "~/.config/emacs/mail/"    
+   message-default-headers "Fcc: ~/.config/emacs/mail/sent/" 
+   user-full-name    "NOME"                  
+   user-mail-address "USUARIO@HOST")
+)
+
+#+end_src
+**** erc
+#+begin_src emacs-lisp
+(defun senha/irc()
+  (epa-decrypt-file "~/.authinfo.gpg" ">/dev/null")
+  (setq senhairc (shell-command-to-string "gpg -dq ~/.config/emacs/irc.gpg")))
+(defun irc()
+  (interactive)
+  (senha/irc)
+  (setq
+   erc-prompt-for-password nil
+   erc-server "irc.libera.chat"
+   erc-port "6697"
+   erc-nick "NICK"
+   erc-user-fullname "FULLNAME")
+  (erc-tls :password senhairc)
+)
+#+end_src
+
+*** externos
+**** use-package
+#+begin_src emacs-lisp
+(require 'use-package-ensure)
+(setq use-package-always-ensure t)
+#+end_src
+
+**** magit
+Um cliente git para emacs.
+#+begin_src emacs-lisp
+(use-package magit)
+#+end_src
+**** company
+Code-completion para o Emacs, extremamente útil.
+#+begin_src emacs-lisp
+(use-package company)
+(add-hook 'after-init-hook 'global-company-mode)
+#+end_src
+**** which-key
+Prompt mostrando as combinações de teclas possíveis, 
+*extremamente* útil. Não preciso ir ao quinto dos 
+infernos para achar as teclas de atalho.
+#+begin_src emacs-lisp
+(use-package which-key)
+(which-key-mode)
+#+end_src
+**** telephone-line
+Não, não é uma linha telefônica, é só uma modeline.
+E uma que não depende de um pacote de temas externo pra ficar bonita.
+#+begin_src emacs-lisp
+(use-package telephone-line)
+(require 'telephone-line)
+(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+      telephone-line-primary-right-separator 'telephone-line-cubed-right
+      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
+(setq telephone-line-height 24
+      telephone-line-evil-use-short-tag t)
+(telephone-line-mode 1)
+#+end_src
+
+** scripts
+Basicamente shell scripts, só que executados no emacs.
+*** up
+Um script que faz o upload de arquivos para o [[https://0x0.st][0x0.st]].
+Ele usa a sua seleção do cursor para procurar o arquivo, 
+depois disso ele faz o upload e entrega a url do arquivo.
+#+begin_src emacs-lisp
+(defun up/file()
+(interactive)
+(setq file (buffer-substring (region-beginning)(region-end)))
+(compile (concat "find ~/ -iname " file " -type f -print0" "|" "xargs -0 -I \"{}\" curl -s -F\"file=@{}\" http://0x0.st"))
+)
+
+;;(defun up/url()
+;;(interactive)
+;;(setq file (buffer-substring (region-beginning)(region-end)))
+;;(compile (concat "curl -s -F\"url="file"\" http://0x0.st"))
+;;)
+#+end_src
+* teclas de atalho
+** lista
+ |----------------------+------------------------------------------------------+------|
+ | Tecla                | Ação                                                 | modo |
+ |----------------------+------------------------------------------------------+------|
+ | C-w                  | cortar                                               |      |
+ | M-w                  | copiar                                               |      |
+ | C-y                  | colar                                                |      |
+ | C-x u ou C-/         | desfazer                                             |      |
+ | C-k                  | deletar linha                                        |      |
+ | C-x C-u              | deixar seleção em caixa alta                         |      |
+ | C-x C-l              | deixar seleção em caixa baixa                        |      |
+ | C-Home               | topo do buffer                                       |      |
+ | C-End                | fim do buffer                                        |      |
+ | C-x k                | matar buffer atual                                   |      |
+ | C-x b                | alterna entre buffers                                |      |
+ | C-x x r              | renomear buffer                                      |      |
+ | C-x C-e              | avaliar código                                       |      |
+ | C-x d                | gerenciador de arquivos                              |      |
+ | C-x C-f              | abrir arquivo                                        |      |
+ | C-x C-s              | salvar arquivo                                       |      |
+ | C-x C-b              | lista de buffers abertos                             |      |
+ | C-x o                | trocar de janela                                     |      |
+ | C-x 0                | fechar janela                                        |      |
+ | C-x 1                | fechar todas as janelas exceto a atual               |      |
+ | C-x 2                | abrir janela embaixo                                 |      |
+ | C-x 3                | abrir janela na direita                              |      |
+ | C-x 4 f              | abrir novo arquivo na mesma janela                   |      |
+ | C-x 5 f              | abrir novo arquivo em uma nova janela                |      |
+ | C-x C-c              | fechar emacs                                         |      |
+ | M-x                  | executar um comando                                  |      |
+ | S-tab                | recolher listas                                      | org  |
+ | C-x r m              | definir Bookmark                                     |      |
+ | C-x r l              | lista de Bookmarks                                   |      |
+ | M-!                  | executar comando externo                             |      |
+ | C-c C-c              | marcar Checkbox como concluída                       | org  |
+ | C-c C-x C-v          | mostrar imagens do buffer                            | org  |
+ | C-x t 2              | cria uma aba                                         |      |
+ | C-x t 1              | fecha as outras abas                                 |      |
+ | C-x t 0              | fecha a aba atual                                    |      |
+ | C-x t d              | abre o dired em uma nova aba                         |      |
+ | C-x t O              | aba anterior                                         |      |
+ | C-x t o              | próxima aba                                          |      |
+ | M-shift up/down      | movimentar linha sob cursor                          |      |
+ | C-c C-e              | exportar arquivo                                     | org  |
+ | S-Esquerda/Direita   | alternar entre estados                               | org  |
+ | M-Esquerda/Direita   | alterar hierarquia das headings                      | org  |
+ | C-x =                | aumenta o texto                                      |      |
+ | C-x -                | diminui o texto                                      |      |
+ | C-x Esquerda/Direita | alterna entre buffers à esquerda ou direita do atual |      |
+ | &                    | abrir url em navegador externo                       | eww  |
+ | l                    | voltar para página anterior                          | eww  |
+ | d                    | download                                             | eww  |
+ | v                    | código-fonte da página                               | eww  |
+ | b                    | adiciona bookmark                                    | eww  |
+ | b                    | lista de bookmarks                                   | eww  |
+ | C-x espaço           | seleção (bloco)                                      |      |
+ | C-x r t              | substituição de texto (bloco)                        |      |
+ | C-espaço             | seleção (linha)                                      |      |
+ | C-a                  | início da linha                                      |      |
+ | C-e                  | fim da linha                                         |      |
+ | C-c                  | copiar                                               | cua  |
+ | C-x                  | cortar                                               | cua  |
+ | C-v                  | colar                                                | cua  |
+ | C-z                  | desfazer                                             | cua  |
+ | C-S-z                | refazer                                              | cua  |
+ | C-x C-x (rápido)     | C-x                                                  | cua  |
+ | C-c C-c (rápido)     | C-c                                                  | cua  |
+ |----------------------+------------------------------------------------------+------|
+** definições
+#+begin_src emacs-lisp
+(defun openmail()
+(interactive)
+(mail/box)
+(rmail-input rmail-file-name)
+)
+
+(keymap-global-set "C-x C-b" 'ibuffer)
+(keymap-global-set "s-/ r" 'restart-emacs)
+(keymap-global-set "s-/ s" 'eshell)
+(keymap-global-set "s-/ b" 'battery)
+(keymap-global-set "s-/ e" 'irc)
+(keymap-global-set "s-/ m" 'openmail)
+(keymap-global-set "s-/ u" 'up/file)
+(keymap-global-set "s-/ c" 'compile)
+(keymap-global-set "s-/ g g" 'magit)
+(keymap-global-set "s-/ g r" 'magit-remote)
+(keymap-global-set "s-/ g p" 'magit-push)
+(keymap-global-set "s-/ g s" 'magit-stage)
+(keymap-global-set "s-/ g c" 'magit-commit)
+#+end_src
+
