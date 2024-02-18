@@ -148,7 +148,7 @@ não tem porque usar isso aqui.)
 (setq 
  rmail-delete-after-output 1                
  rmail-mime-prefer-html nil
- smtpmail-smtp-server "mail.cock.li"
+ smtpmail-smtp-server "SMTP.HOST"
  smtpmail-smtp-service 587
  smtpmail-stream-type 'starttls
  send-mail-function 'smtpmail-send-it       
