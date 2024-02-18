@@ -132,12 +132,14 @@ orgulho dessa gambiarra.
 
 Opções extras:
 
-- rmail-preserve-inbox 1/nil  [não excluir emails do servidor após download.]
-                              [sinceramente, se for pra ter email, que não  ]
-                              [esteja em algum lugar fora do meu computador.]
+- rmail-preserve-inbox 1/nil  
+(não excluir emails do servidor após download. 
+sinceramente, se for pra ter email, que não
+esteja em algum lugar fora do meu computador.)
 
-- rmail-mail-new-frame 1/nil  [abrir cada email em um novo frame.           ]
-                              [não tem porque usar isso aqui.               ]
+- rmail-mail-new-frame 1/nil  
+(abrir cada email em um novo frame. 
+não tem porque usar isso aqui.)
 
 
 #+begin_src emacs-lisp
