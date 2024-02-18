@@ -13,6 +13,11 @@ Isso é algo que estou fazendo para ter uma
 configuração minimalista, rápida, eficiente, e 
 sem risco de quebrar.
 
+Para usar essa configuração, basta copiar os
+arquivos para a sua pasta de configurações do
+Emacs, seja ela ~/.emacs.d, ~/.config/emacs ou
+qualquer outro lugar.
+
 * configurações
 ** configuração visual
 Remoção das barras de ferramentas, menus, barra 
