@@ -1,6 +1,6 @@
 #+TITLE:	Minha configuração do Emacs
-#+DESCRIPTION:	minhas configurações e funções do emacs.
 #+AUTHOR:	0x736561
+#+DESCRIPTION:	minhas configurações e funções do emacs.
 #+STARTUP:	overview
 
 Essa configuração é extremamente simples, quase
@@ -12,11 +12,6 @@ atalho, previsão de digitação, e um tema.
 Isso é algo que estou fazendo para ter uma 
 configuração minimalista, rápida, eficiente, e 
 sem risco de quebrar.
-
-Para usar essa configuração, basta copiar os
-arquivos para a sua pasta de configurações do
-Emacs, seja ela ~/.emacs.d, ~/.config/emacs ou
-qualquer outro lugar.
 
 * configurações
 ** configuração visual
@@ -34,6 +29,70 @@ Também configurando o comportamento padrão do Emacs
 (toggle-scroll-bar -1)
 (scroll-bar-mode -1)
 (setq inhibit-startup-screen t)
+#+end_src
+
+*** tela inicial
+Uma implementação no estilo do Emacs Dashboard, o 
+código veio [[https://xenodium.com/emacs-a-welcoming-experiment/][daqui]].
+#+begin_src emacs-lisp
+(defun ar/show-welcome-buffer ()
+  "Show *Welcome* buffer."
+  (with-current-buffer (get-buffer-create "*Welcome*")
+    (setq truncate-lines t)
+    (let* ((buffer-read-only)
+           (image-path "~/.config/emacs/emacs.png")
+           (image (create-image image-path))
+           (size (image-size image))
+           (height (cdr size))
+           (width (car size))
+           (top-margin (floor (/ (- (window-height) height) 2)))
+           (left-margin (floor (/ (- (window-width) width) 2)))
+           (prompt-title "Bem-vindo ao Emacs!"))
+      (erase-buffer)
+      (setq mode-line-format nil)
+      (goto-char (point-min))
+      (insert (make-string top-margin ?\n ))
+      (insert (make-string left-margin ?\ ))
+      (insert-image image)
+      (insert "\n\n\n")
+      (insert (make-string (floor (/ (- (window-width) (string-width prompt-title)) 2)) ?\ ))
+      (insert prompt-title))
+    (setq cursor-type nil)
+    (read-only-mode +1)
+    (switch-to-buffer (current-buffer))
+    (local-set-key (kbd "q") 'kill-this-buffer)
+    (local-set-key (kbd "o") 'find-file)
+    (local-set-key (kbd "d") 'dired)))
+
+(setq initial-scratch-message nil)
+(setq inhibit-startup-screen t)
+
+(when (< (length command-line-args) 2)
+  (add-hook 'emacs-startup-hook (lambda ()
+                                  (when (display-graphic-p)
+                                    (ar/show-welcome-buffer)))))
+#+end_src
+
+*** fontes
+#+begin_src emacs-lisp
+(set-frame-font "JetBrainsMono 10" t)
+#+end_src
+
+*** tema
+#+begin_src emacs-lisp
+(load-theme 'leuven-dark t)
+(custom-set-faces
+ '(minibuffer-prompt ((t (:background "#443f49" :foreground "#cfa161" :weight bold))))
+ '(mode-line-highlight ((t (:foreground "#443f49")))))
+#+end_src
+
+*** utf-8
+Deixando a codificação padrão como "utf-8".
+#+begin_src emacs-lisp
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
 #+end_src
 
 *** outras coisas
@@ -70,25 +129,6 @@ Também configurando o comportamento padrão do Emacs
       scroll-preserve-screen-position 1)
 #+end_src
 
-*** fontes
-#+begin_src emacs-lisp
-(set-frame-font "JetBrainsMono 10" t)
-#+end_src
-
-*** tema
-#+begin_src emacs-lisp
-(load-theme 'leuven-dark t)
-#+end_src
-
-*** utf-8
-Deixando a codificação padrão como "utf-8".
-#+begin_src emacs-lisp
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-#+end_src
-
 ** variáveis globais
 #+begin_src emacs-lisp
 (setq use-file-dialog nil)
@@ -99,6 +139,7 @@ Deixando a codificação padrão como "utf-8".
 (setq org-support-shift-select t)
 (setq org-edit-src-content-indentation 0)
 (setq epa-pinentry-mode 'loopback)
+(setq org-hide-leading-stars t)
 #+end_src
 
 ** pacotes
@@ -112,7 +153,6 @@ auto-completar arquivos no minibuffer
 cliente pgp nativo do Emacs.
 #+begin_src emacs-lisp
 (require 'epa-file)
-(epa-file-enable)
 (setq epa-file-encrypt-to "john@doe.com")
 (setq epa-file-select-keys -1)
 #+end_src
@@ -130,49 +170,36 @@ Eu fiz uma gambiarra sem precedentes para conseguir ter uma
 forma do rmail ler um arquivo gpg como senha, mas, tenho
 orgulho dessa gambiarra.
 
-Opções extras:
-
-- rmail-preserve-inbox 1/nil  
-(não excluir emails do servidor após download. 
-sinceramente, se for pra ter email, que não
-esteja em algum lugar fora do meu computador.)
-
-- rmail-mail-new-frame 1/nil  
-(abrir cada email em um novo frame. 
-não tem porque usar isso aqui.)
-
-
 #+begin_src emacs-lisp
-
-(setenv "MAILHOST" "[IMAP/POP].HOST")
-(setq 
- rmail-delete-after-output 1                
- rmail-mime-prefer-html nil
- smtpmail-smtp-server "SMTP.HOST"
- smtpmail-smtp-service 587
- smtpmail-stream-type 'starttls
- send-mail-function 'smtpmail-send-it       
-)
-(load-library "smtpmail")
-
 (defun senha/mail()
   (epa-decrypt-file "~/.authinfo.gpg" ">/dev/null")
   (setq senha (shell-command-to-string "gpg -dq ~/.config/emacs/mail/pass.gpg")))
-(defun mail/box()
+(defun mail/diogo()
   (interactive)
+
+  (setenv "MAILHOST" "HOST")
+  (setq 
+   rmail-delete-after-output 1                
+   rmail-mime-prefer-html nil
+   smtpmail-smtp-server "HOST SMTP"
+   smtpmail-smtp-service 587
+   smtpmail-stream-type 'starttls
+   send-mail-function 'smtpmail-send-it       
+   )
+  (load-library "smtpmail")
   (senha/mail)
   (setenv "MAIL"
 	  (concat "imaps://"
-		  "USUARIO%40HOST"
+		  "USER%40DOMAIN"
 		   senha
-		  "@[IMAP/POP].HOST"))
+		  "@HOST"))
 
   (setq                 
    rmail-file-name   "~/.config/emacs/mail/inbox"           
    rmail-secondary-file-directory "~/.config/emacs/mail/"    
    message-default-headers "Fcc: ~/.config/emacs/mail/sent/" 
-   user-full-name    "NOME"                  
-   user-mail-address "USUARIO@HOST")
+   user-full-name    "NAME"                  
+   user-mail-address "EMAIL")
 )
 
 #+end_src
@@ -188,30 +215,22 @@ não tem porque usar isso aqui.)
    erc-prompt-for-password nil
    erc-server "irc.libera.chat"
    erc-port "6697"
-   erc-nick "NICK"
-   erc-user-fullname "FULLNAME")
+   erc-nick "USUÁRIO"
+   erc-user-fullname "NOME COMPLETO")
   (erc-tls :password senhairc)
 )
 #+end_src
-
-*** externos
 **** use-package
 #+begin_src emacs-lisp
 (require 'use-package-ensure)
-(setq use-package-always-ensure t)
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-and-compile
+(setq use-package-always-ensure t
+      use-package-expand-minimally t))
 #+end_src
-
-**** magit
-Um cliente git para emacs.
-#+begin_src emacs-lisp
-(use-package magit)
-#+end_src
-**** company
-Code-completion para o Emacs, extremamente útil.
-#+begin_src emacs-lisp
-(use-package company)
-(add-hook 'after-init-hook 'global-company-mode)
-#+end_src
+*** externos
 **** which-key
 Prompt mostrando as combinações de teclas possíveis, 
 *extremamente* útil. Não preciso ir ao quinto dos 
@@ -220,21 +239,7 @@ infernos para achar as teclas de atalho.
 (use-package which-key)
 (which-key-mode)
 #+end_src
-**** telephone-line
-Não, não é uma linha telefônica, é só uma modeline.
-E uma que não depende de um pacote de temas externo pra ficar bonita.
-#+begin_src emacs-lisp
-(use-package telephone-line)
-(require 'telephone-line)
-(setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-      telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
-      telephone-line-primary-right-separator 'telephone-line-cubed-right
-      telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
-(setq telephone-line-height 24
-      telephone-line-evil-use-short-tag t)
-(telephone-line-mode 1)
 #+end_src
-
 ** scripts
 Basicamente shell scripts, só que executados no emacs.
 *** up
@@ -245,14 +250,12 @@ depois disso ele faz o upload e entrega a url do arquivo.
 (defun up/file()
 (interactive)
 (setq file (buffer-substring (region-beginning)(region-end)))
-(compile (concat "find ~/ -iname " file " -type f -print0" "|" "xargs -0 -I \"{}\" curl -s -F\"file=@{}\" http://0x0.st"))
+(compile (concat "find ~/ -iname " 
+		 file 
+		 " -type f -print0" 
+		 "|" 
+		 "xargs -0 -I \"{}\" curl -s -F\"file=@{}\" http://0x0.st"))
 )
-
-;;(defun up/url()
-;;(interactive)
-;;(setq file (buffer-substring (region-beginning)(region-end)))
-;;(compile (concat "curl -s -F\"url="file"\" http://0x0.st"))
-;;)
 #+end_src
 * teclas de atalho
 ** lista
@@ -327,7 +330,7 @@ depois disso ele faz o upload e entrega a url do arquivo.
 #+begin_src emacs-lisp
 (defun openmail()
 (interactive)
-(mail/box)
+(mail/diogo)
 (rmail-input rmail-file-name)
 )
 
@@ -340,9 +343,8 @@ depois disso ele faz o upload e entrega a url do arquivo.
 (keymap-global-set "s-/ u" 'up/file)
 (keymap-global-set "s-/ c" 'compile)
 (keymap-global-set "s-/ g g" 'magit)
-(keymap-global-set "s-/ g r" 'magit-remote)
-(keymap-global-set "s-/ g p" 'magit-push)
-(keymap-global-set "s-/ g s" 'magit-stage)
-(keymap-global-set "s-/ g c" 'magit-commit)
+(keymap-global-set "s-/ g c" 'magit-clone)
+(keymap-global-set "M-<insert>" 'dabbrev-expand)
+(keymap-global-set "<insert>" 'dabbrev-completion)
 #+end_src
 
