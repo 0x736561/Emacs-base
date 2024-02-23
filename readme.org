@@ -174,7 +174,7 @@ orgulho dessa gambiarra.
 (defun senha/mail()
   (epa-decrypt-file "~/.authinfo.gpg" ">/dev/null")
   (setq senha (shell-command-to-string "gpg -dq ~/.config/emacs/mail/pass.gpg")))
-(defun mail/diogo()
+(defun mail/main()
   (interactive)
 
   (setenv "MAILHOST" "HOST")
@@ -330,7 +330,7 @@ depois disso ele faz o upload e entrega a url do arquivo.
 #+begin_src emacs-lisp
 (defun openmail()
 (interactive)
-(mail/diogo)
+(mail/main)
 (rmail-input rmail-file-name)
 )
 
