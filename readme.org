@@ -15,7 +15,8 @@ criadas aqui mesmo.
 Enfim, divirta-se!
 
 * configurações
-** configuração visual
+
+** visual
 
 Remoção das barras de ferramentas, menus, barra de rolagem, enfim, deixando 
 a aparência do Emacs mais minimalista.
@@ -29,7 +30,10 @@ Também configurando o comportamento padrão do Emacs
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
 (scroll-bar-mode -1)
-(setq inhibit-startup-screen t)
+
+;; A "tela inicial" já faz o que está aqui embaixo
+;;(setq initial-scratch-message nil)
+;;(setq inhibit-startup-screen t)
 #+end_src
 
 *** fontes
@@ -87,9 +91,11 @@ Deixando a codificação padrão como "utf-8".
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
 #+end_src
-*** tela inicial
-Uma implementação no estilo do Emacs Dashboard, o 
-código veio [[https://xenodium.com/emacs-a-welcoming-experiment/][daqui]].
+
+** tela inicial
+
+Uma tela de início simples, o código veio [[https://xenodium.com/emacs-a-welcoming-experiment/][daqui]].
+
 #+begin_src emacs-lisp
 (defun ar/show-welcome-buffer ()
   "Show *Welcome* buffer."
@@ -103,7 +109,7 @@ código veio [[https://xenodium.com/emacs-a-welcoming-experiment/][daqui]].
            (width (car size))
            (top-margin (floor (/ (- (window-height) height) 2)))
            (left-margin (floor (/ (- (window-width) width) 2)))
-           (prompt-title "Bem-vindo ao Emacs!"))
+           (prompt-title "Pressione 'o' para abrir um arquivo, 'd' para abrir uma pasta, ou 'q' para fechar este buffer."))
       (erase-buffer)
       (setq mode-line-format nil)
       (goto-char (point-min))
@@ -143,13 +149,18 @@ código veio [[https://xenodium.com/emacs-a-welcoming-experiment/][daqui]].
 #+end_src
 
 ** pacotes internos
+
 *** ido-mode
-auto-completar arquivos no minibuffer
+
+Um modo que substitui outros minor-modes e que providência auto-completação de texto
+
 #+begin_src emacs-lisp
 (ido-mode 1)
 #+end_src
 *** easypg
-cliente pgp nativo do Emacs.
+
+cliente gpg nativo do Emacs, ele é usado na configuração de email e também no cliente irc.
+
 #+begin_src emacs-lisp
 (require 'epa-file)
 (setq epa-file-encrypt-to "john@doe.com")
@@ -157,10 +168,14 @@ cliente pgp nativo do Emacs.
 #+end_src
 
 *** email
+
 Configuração de email, no Emacs. Extremamente simples e com 
 apenas uma dependência externa: mailutils.
 
-Para instalar no Alpine é só entrar [[https://pkgs.alpinelinux.org/package/edge/testing/x86/mailutils][aqui]].
+Para instalar no Alpine é só entrar [[https://pkgs.alpinelinux.org/package/edge/testing/x86/mailutils][aqui]], se você usa uma outra
+distribuição, como o Arch por exemplo, é só checar seus 
+repositórios padrões ou procurar por um repositório externo, 
+como o AUR ou algum PPA por exemplo.
 
 Depois de instalar o mailutils, é só abrir o emacs e usar o 
 rmail como bem entender. 
@@ -223,6 +238,7 @@ _receber e-mail de uma conta minha no [[https://cock.li][cock.li]]._
 )
 
 #+end_src
+
 *** erc
 #+begin_src emacs-lisp
 (defun senha/irc()
@@ -240,6 +256,7 @@ _receber e-mail de uma conta minha no [[https://cock.li][cock.li]]._
   (erc-tls :password senhairc)
 )
 #+end_src
+
 ** pacotes externos
 
 Bem, é aqui onde os pacotes externos podem ser colocados
@@ -263,23 +280,35 @@ desabilitado por padrão.
 ** scripts
 Basicamente shell scripts, só que executados no emacs.
 Não sei ainda quais scripts eu vou colocar aqui.
-*** up
+*** upload
 Um script que faz o upload de arquivos para o [[https://0x0.st][0x0.st]].
 Ele usa a sua seleção do cursor para procurar o arquivo, 
 depois disso ele faz o upload e entrega a url do arquivo.
+
+Algumas coisas que você precisa saber antes de usar isso aqui:
+
+1. O script vai procurar pelo seu diretório home inteiro, incluindo dotfiles.
+2. Por padrão, o script faz o upload com a geração de url simples. O que é mais fácil de ser descoberto.
+3. Nunca faça o upload de algo privado, sensível ou identificável, a única forma de deletar algo é entrando em contato com o suporte.
+4. A busca por arquivos é case-sensitive, então Dados.db e dados.db não serão enviados ao mesmo tempo.
+
 
 #+begin_src emacs-lisp
 (defun upload()
   (interactive)
   (setq file (buffer-substring (region-beginning)(region-end)))
-  (compile (concat "find ~/ -iname " 
+  (compile (concat "find ~/ -name " 
 		   file 
 		   " -type f -print0" 
 		   "|" 
 		   "xargs -0 -I \"{}\" curl -s -F\"file=@{}\" http://0x0.st"))
 )
 #+end_src
+*** 
+*** 
+
 * teclas de atalho
+
 ** Padrões
 
 Uma lista das teclas de atalho que acho importantes, 
