@@ -2,55 +2,62 @@
 #+AUTHOR: 0x736561
 #+STARTUP:overview
 
-Essa configuração é extremamente simples e que não possui nenhum pacote externo.
-O objetivo é ser uma base rápida, eficiente, e sem risco de quebrar. 
-Basicamente tirar a dor de cabeça de configurar o Emacs do zero.
-Ela não é feita para ser algo pronto, nem pra ser uma solução para um grupo 
-de pessoas. Ela serve basicamente apenas para o meu uso.
+Essa configuração é extremamente simples e que não possui nenhum 
+pacote externo. O objetivo é ser uma base rápida, eficiente, e 
+sem risco de quebrar. 
 
-Apesar disso, ela é uma configuração que é extremamente portátil por conta 
-da sua natureza extremamente simples e de usar apenas funcionalidades nativas ou
-criadas aqui mesmo.
+Basicamente tirar a dor de cabeça de configurar o Emacs do zero.
+Ela não é feita para ser algo pronto, nem pra ser uma 
+solução para um grupo de pessoas. Ela serve basicamente 
+apenas para o meu uso.
+
+Apesar disso, ela é uma configuração que é extremamente portátil por 
+conta da sua natureza extremamente simples e por usar apenas 
+funcionalidades nativas ou criadas aqui mesmo.
 
 Enfim, divirta-se!
 
 * configurações
-
 ** visual
+*** aparência
 
-Remoção das barras de ferramentas, menus, barra de rolagem, enfim, deixando 
-a aparência do Emacs mais minimalista.
+Remoção das barras de ferramentas, menus, barra de rolagem, enfim, 
+deixando a aparência do Emacs mais minimalista.
 
-Também configurando o comportamento padrão do Emacs
-(Certas coisas foram feitas para serem mudadas).
-
-*** removendo poluição visual
 #+begin_src emacs-lisp
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (toggle-scroll-bar -1)
 (scroll-bar-mode -1)
-
-;; A "tela inicial" já faz o que está aqui embaixo
-;;(setq initial-scratch-message nil)
-;;(setq inhibit-startup-screen t)
+(column-number-mode +1)
+(blink-cursor-mode -1)
+(size-indication-mode +1)
+(global-display-line-numbers-mode +1)
+(global-prettify-symbols-mode +1)
+(global-hl-line-mode +1)
 #+end_src
 
 *** fontes
+
+Definindo a fonte padrão do Emacs, a fonte que eu uso é a 
+Jetbrains Mono, mas caso você use outra, é só modificar a string.
+
 #+begin_src emacs-lisp
 (set-frame-font "JetBrainsMono 10" t)
 #+end_src
 
 *** tema
+
+O tema que o Emacs vai utilizar.
+
 #+begin_src emacs-lisp
-(load-theme 'leuven-dark t)
-(custom-set-faces
- '(minibuffer-prompt ((t (:background "#443f49" :foreground "#cfa161" :weight bold))))
- '(mode-line-highlight ((t (:foreground "#443f49")))))
+(load-theme 'misterioso t)
 #+end_src
 
 *** utf-8
+
 Deixando a codificação padrão como "utf-8".
+
 #+begin_src emacs-lisp
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
@@ -58,31 +65,31 @@ Deixando a codificação padrão como "utf-8".
 (set-keyboard-coding-system 'utf-8)
 #+end_src
 
-*** outras coisas
+*** org-mode
 #+begin_src emacs-lisp
-(delete-selection-mode 1)
+(electric-pair-mode +1)
 (electric-indent-mode -1)
-(electric-pair-mode 1)
-(blink-cursor-mode -1)
-(global-hl-line-mode +1)
-(line-number-mode +1)
-(global-display-line-numbers-mode +1)
-(column-number-mode t)
+(delete-selection-mode +1)
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)  
-(size-indication-mode t)
-(global-prettify-symbols-mode t)
-(global-hl-line-mode)
-(set-face-attribute 'tool-bar nil
-                    :inverse-video nil
-                    :background "#121212"
-                    :foreground "e1e1e1"
-                    :bold t)
-(set-face-attribute 'menu nil
-                    :inverse-video nil
-                    :background "#121212"
-                    :foreground "#e1e1e1"
-                    :bold t)
+#+end_src
+
+** variáveis
+
+Definições de variáveis globais.
+
+#+begin_src emacs-lisp
+(setq initial-scratch-message nil)
+(setq inhibit-startup-screen t)
+(setq use-file-dialog nil)
+(setq use-dialog-box nil)
+(setq pop-up-windows nil)
+(setq backup-directory-alist '(("." . "~/.config/emacs/backups/")))
+(setq org-src-fontify-natively t)
+(setq org-support-shift-select t)
+(setq org-edit-src-content-indentation 0)
+(setq epa-pinentry-mode 'loopback)
+(setq org-hide-leading-stars t)
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
 		   (abbreviate-file-name (buffer-file-name))
@@ -95,6 +102,7 @@ Deixando a codificação padrão como "utf-8".
 ** tela inicial
 
 Uma tela de início simples, o código veio [[https://xenodium.com/emacs-a-welcoming-experiment/][daqui]].
+Melhor isso do que a tela inicial padrão do Emacs.
 
 #+begin_src emacs-lisp
 (defun ar/show-welcome-buffer ()
@@ -126,40 +134,23 @@ Uma tela de início simples, o código veio [[https://xenodium.com/emacs-a-welco
     (local-set-key (kbd "o") 'find-file)
     (local-set-key (kbd "d") 'dired)))
 
-(setq initial-scratch-message nil)
-(setq inhibit-startup-screen t)
-
 (when (< (length command-line-args) 2)
   (add-hook 'emacs-startup-hook (lambda ()
                                   (when (display-graphic-p)
                                     (ar/show-welcome-buffer)))))
 #+end_src
 
-** variáveis globais
-#+begin_src emacs-lisp
-(setq use-file-dialog nil)
-(setq use-dialog-box nil)
-(setq pop-up-windows nil)
-(setq backup-directory-alist '(("." . "~/.config/emacs/backups/")))
-(setq org-src-fontify-natively t)
-(setq org-support-shift-select t)
-(setq org-edit-src-content-indentation 0)
-(setq epa-pinentry-mode 'loopback)
-(setq org-hide-leading-stars t)
-#+end_src
-
 ** pacotes internos
-
 *** ido-mode
 
-Um modo que substitui outros minor-modes e que providência auto-completação de texto
+Um modo que substitui outros minor-modes.
 
 #+begin_src emacs-lisp
 (ido-mode 1)
 #+end_src
 *** easypg
 
-cliente gpg nativo do Emacs, ele é usado na configuração de email e também no cliente irc.
+wrapper gpg nativo do Emacs, ele é usado na configuração de email e também no cliente irc.
 
 #+begin_src emacs-lisp
 (require 'epa-file)
@@ -167,7 +158,7 @@ cliente gpg nativo do Emacs, ele é usado na configuração de email e também n
 (setq epa-file-select-keys -1)
 #+end_src
 
-*** email
+*** rmail
 
 Configuração de email, no Emacs. Extremamente simples e com 
 apenas uma dependência externa: mailutils.
@@ -240,10 +231,22 @@ _receber e-mail de uma conta minha no [[https://cock.li][cock.li]]._
 #+end_src
 
 *** erc
+Mesma lógica da configuração do rmail, você deve providenciar um 
+
+nome de usuário e também um arquivo gpg contendo uma senha para 
+esse usuário.
+
+A única diferença aqui é que você só precisa usar essa função caso 
+você tenha um usuário irc registrado. Se esse não for o seu caso, 
+então você pode deixar a linhas 248-250,253 e 260 comentadas.
+
 #+begin_src emacs-lisp
 (defun senha/irc()
   (epa-decrypt-file "~/.authinfo.gpg" ">/dev/null")
-  (setq senhairc (shell-command-to-string "gpg -dq ~/.config/emacs/irc.gpg")))
+  (setq senhairc 
+	(shell-command-to-string "gpg -dq ~/.config/emacs/irc.gpg")
+	)
+)
 (defun irc()
   (interactive)
   (senha/irc)
@@ -259,14 +262,16 @@ _receber e-mail de uma conta minha no [[https://cock.li][cock.li]]._
 
 ** pacotes externos
 
-Bem, é aqui onde os pacotes externos podem ser colocados
-e configurados. Na verdade qualquer lugar desse arquivo 
-pode ser usado, mas eu prefiro deixar um lugar dedicado
-para fins de organização.
+Bem, é aqui onde os pacotes externos podem ser colocados e 
+configurados. Na verdade qualquer lugar desse arquivo pode 
+ser usado, mas eu prefiro deixar um lugar dedicado para fins 
+de organização.
+
+Eu não vou deixar nenhum pacote externo pré-configurado, 
+isso é algo que você vai ter que fazer por conta própria, 
+mas eu vou deixar um bloco com uma configuração do use-package.
 
 *** use-package
-Configurações do gerenciador de pacotes, 
-desabilitado por padrão.
 #+begin_src emacs-lisp
 ;;(require 'use-package-ensure)
 ;;(unless (package-installed-p 'use-package)
@@ -304,11 +309,8 @@ Algumas coisas que você precisa saber antes de usar isso aqui:
 		   "xargs -0 -I \"{}\" curl -s -F\"file=@{}\" http://0x0.st"))
 )
 #+end_src
-*** 
-*** 
 
 * teclas de atalho
-
 ** Padrões
 
 Uma lista das teclas de atalho que acho importantes, 
