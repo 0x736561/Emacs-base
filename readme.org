@@ -386,17 +386,16 @@ Uma lista das teclas de atalho que acho importantes,
 ** Customizadas
 Lugar onde guardo teclas de atalhos customizadas.
 #+begin_src emacs-lisp
-(keymap-global-set	"C-x C-b"	 'ibuffer)
-(keymap-global-set	"s-/ r"		 'restart-emacs)
-(keymap-global-set	"s-/ s"		 'eshell)
-(keymap-global-set	"s-/ b"		 'battery)
-(keymap-global-set	"s-/ e"		 'irc)
-(keymap-global-set	"s-/ m"		 'openmail)
-(keymap-global-set	"s-/ u"		 'upload)
-(keymap-global-set	"s-/ c"		 'compile)
-(keymap-global-set	"s-/ g g"	 'magit)
-(keymap-global-set	"s-/ g c"	 'magit-clone)
-(keymap-global-set	"M-<insert>"	 'dabbrev-expand)
-(keymap-global-set	"<insert>"	 'dabbrev-completion)
+(keymap-global-set	"C-x C-b"	'ibuffer)
+(keymap-global-set	"s-/ r"		'restart-emacs)
+(keymap-global-set	"s-/ s"		'eshell)
+(keymap-global-set	"s-/ b"		'battery)
+(keymap-global-set	"s-/ e"		'irc)
+(keymap-global-set	"s-/ m"		'openmail)
+(keymap-global-set	"s-/ u"		'upload)
+(keymap-global-set	"s-/ c"		'compile)
+(keymap-global-set	"s-/ i"		'display-fill-column-indicator-mode)
+(keymap-global-set	"M-<insert>"	'dabbrev-expand)
+(keymap-global-set	"<insert>"	'dabbrev-completion)
 #+end_src
 
