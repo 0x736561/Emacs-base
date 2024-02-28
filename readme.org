@@ -1,23 +1,24 @@
-#+TITLE:	Minha configuração do Emacs
-#+AUTHOR:	0x736561
-#+DESCRIPTION:	minhas configurações e funções do emacs.
-#+STARTUP:	overview
+#+TITLE:  Minha configuração do Emacs
+#+AUTHOR: 0x736561
+#+STARTUP:overview
 
-Essa configuração é extremamente simples, quase
-não tem pacotes externos. Os poucos pacotes que
-são instalados por essa configuração servem 
-apenas para: configurar previsão de teclas de
-atalho, previsão de digitação, e um tema.
+Essa configuração é extremamente simples e que não possui nenhum pacote externo.
+O objetivo é ser uma base rápida, eficiente, e sem risco de quebrar. 
+Basicamente tirar a dor de cabeça de configurar o Emacs do zero.
+Ela não é feita para ser algo pronto, nem pra ser uma solução para um grupo 
+de pessoas. Ela serve basicamente apenas para o meu uso.
 
-Isso é algo que estou fazendo para ter uma 
-configuração minimalista, rápida, eficiente, e 
-sem risco de quebrar.
+Apesar disso, ela é uma configuração que é extremamente portátil por conta 
+da sua natureza extremamente simples e de usar apenas funcionalidades nativas ou
+criadas aqui mesmo.
+
+Enfim, divirta-se!
 
 * configurações
 ** configuração visual
-Remoção das barras de ferramentas, menus, barra 
-de rolagem, enfim, deixando a aparência do Emacs 
-mais minimalista.
+
+Remoção das barras de ferramentas, menus, barra de rolagem, enfim, deixando 
+a aparência do Emacs mais minimalista.
 
 Também configurando o comportamento padrão do Emacs
 (Certas coisas foram feitas para serem mudadas).
@@ -29,48 +30,6 @@ Também configurando o comportamento padrão do Emacs
 (toggle-scroll-bar -1)
 (scroll-bar-mode -1)
 (setq inhibit-startup-screen t)
-#+end_src
-
-*** tela inicial
-Uma implementação no estilo do Emacs Dashboard, o 
-código veio [[https://xenodium.com/emacs-a-welcoming-experiment/][daqui]].
-#+begin_src emacs-lisp
-(defun ar/show-welcome-buffer ()
-  "Show *Welcome* buffer."
-  (with-current-buffer (get-buffer-create "*Welcome*")
-    (setq truncate-lines t)
-    (let* ((buffer-read-only)
-           (image-path "~/.config/emacs/emacs.png")
-           (image (create-image image-path))
-           (size (image-size image))
-           (height (cdr size))
-           (width (car size))
-           (top-margin (floor (/ (- (window-height) height) 2)))
-           (left-margin (floor (/ (- (window-width) width) 2)))
-           (prompt-title "Bem-vindo ao Emacs!"))
-      (erase-buffer)
-      (setq mode-line-format nil)
-      (goto-char (point-min))
-      (insert (make-string top-margin ?\n ))
-      (insert (make-string left-margin ?\ ))
-      (insert-image image)
-      (insert "\n\n\n")
-      (insert (make-string (floor (/ (- (window-width) (string-width prompt-title)) 2)) ?\ ))
-      (insert prompt-title))
-    (setq cursor-type nil)
-    (read-only-mode +1)
-    (switch-to-buffer (current-buffer))
-    (local-set-key (kbd "q") 'kill-this-buffer)
-    (local-set-key (kbd "o") 'find-file)
-    (local-set-key (kbd "d") 'dired)))
-
-(setq initial-scratch-message nil)
-(setq inhibit-startup-screen t)
-
-(when (< (length command-line-args) 2)
-  (add-hook 'emacs-startup-hook (lambda ()
-                                  (when (display-graphic-p)
-                                    (ar/show-welcome-buffer)))))
 #+end_src
 
 *** fontes
@@ -128,6 +87,47 @@ Deixando a codificação padrão como "utf-8".
       scroll-conservatively 100000
       scroll-preserve-screen-position 1)
 #+end_src
+*** tela inicial
+Uma implementação no estilo do Emacs Dashboard, o 
+código veio [[https://xenodium.com/emacs-a-welcoming-experiment/][daqui]].
+#+begin_src emacs-lisp
+(defun ar/show-welcome-buffer ()
+  "Show *Welcome* buffer."
+  (with-current-buffer (get-buffer-create "*Welcome*")
+    (setq truncate-lines t)
+    (let* ((buffer-read-only)
+           (image-path "~/.config/emacs/emacs.png")
+           (image (create-image image-path))
+           (size (image-size image))
+           (height (cdr size))
+           (width (car size))
+           (top-margin (floor (/ (- (window-height) height) 2)))
+           (left-margin (floor (/ (- (window-width) width) 2)))
+           (prompt-title "Bem-vindo ao Emacs!"))
+      (erase-buffer)
+      (setq mode-line-format nil)
+      (goto-char (point-min))
+      (insert (make-string top-margin ?\n ))
+      (insert (make-string left-margin ?\ ))
+      (insert-image image)
+      (insert "\n\n\n")
+      (insert (make-string (floor (/ (- (window-width) (string-width prompt-title)) 2)) ?\ ))
+      (insert prompt-title))
+    (setq cursor-type nil)
+    (read-only-mode +1)
+    (switch-to-buffer (current-buffer))
+    (local-set-key (kbd "q") 'kill-this-buffer)
+    (local-set-key (kbd "o") 'find-file)
+    (local-set-key (kbd "d") 'dired)))
+
+(setq initial-scratch-message nil)
+(setq inhibit-startup-screen t)
+
+(when (< (length command-line-args) 2)
+  (add-hook 'emacs-startup-hook (lambda ()
+                                  (when (display-graphic-p)
+                                    (ar/show-welcome-buffer)))))
+#+end_src
 
 ** variáveis globais
 #+begin_src emacs-lisp
@@ -142,14 +142,13 @@ Deixando a codificação padrão como "utf-8".
 (setq org-hide-leading-stars t)
 #+end_src
 
-** pacotes
-*** nativos
-**** ido-mode
+** pacotes internos
+*** ido-mode
 auto-completar arquivos no minibuffer
 #+begin_src emacs-lisp
 (ido-mode 1)
 #+end_src
-**** easypg
+*** easypg
 cliente pgp nativo do Emacs.
 #+begin_src emacs-lisp
 (require 'epa-file)
@@ -157,7 +156,7 @@ cliente pgp nativo do Emacs.
 (setq epa-file-select-keys -1)
 #+end_src
 
-**** email
+*** email
 Configuração de email, no Emacs. Extremamente simples e com 
 apenas uma dependência externa: mailutils.
 
@@ -169,6 +168,22 @@ rmail como bem entender.
 Eu fiz uma gambiarra sem precedentes para conseguir ter uma
 forma do rmail ler um arquivo gpg como senha, mas, tenho
 orgulho dessa gambiarra.
+
+Você ainda deve providênciar algumas informações, 
+como usuário, domínios, servidores e também criar um arquivo
+gpg contendo sua senha para você conseguir baixar seu e-mail 
+e configurar um arquivo authinfo.gpg para poder enviar e-mail.
+
+Legenda:
+- HOST		= domínio do provedor		(Ex: imap.gmail.com)
+- DOMAIN	= domínio do email		(Ex: gmail.com)
+- USER		= usuário do email		(Ex: johndoe)
+- HOST SMTP	= servidor smtp do provedor	(Ex: smtp.gmail.com)
+- NAME		= o nome do usuário		(Ex: John Doe)
+
+_OBS: Por mais que na legenda eu tenha colocado o GMAIL como exemplo,_
+_Eu não configurei o RMAIL para receber e-mail do GMAIL, mas sim para_
+_receber e-mail de uma conta minha no [[https://cock.li][cock.li]]._
 
 #+begin_src emacs-lisp
 (defun senha/mail()
@@ -201,9 +216,14 @@ orgulho dessa gambiarra.
    user-full-name    "NAME"                  
    user-mail-address "EMAIL")
 )
+(defun openmail()
+  (interactive)
+  (mail/main)
+  (rmail-input rmail-file-name)
+)
 
 #+end_src
-**** erc
+*** erc
 #+begin_src emacs-lisp
 (defun senha/irc()
   (epa-decrypt-file "~/.authinfo.gpg" ">/dev/null")
@@ -220,45 +240,51 @@ orgulho dessa gambiarra.
   (erc-tls :password senhairc)
 )
 #+end_src
-**** use-package
+** pacotes externos
+
+Bem, é aqui onde os pacotes externos podem ser colocados
+e configurados. Na verdade qualquer lugar desse arquivo 
+pode ser usado, mas eu prefiro deixar um lugar dedicado
+para fins de organização.
+
+*** use-package
+Configurações do gerenciador de pacotes, 
+desabilitado por padrão.
 #+begin_src emacs-lisp
-(require 'use-package-ensure)
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(eval-and-compile
-(setq use-package-always-ensure t
-      use-package-expand-minimally t))
+;;(require 'use-package-ensure)
+;;(unless (package-installed-p 'use-package)
+;;  (package-refresh-contents)
+;;  (package-install 'use-package))
+;;(eval-and-compile
+;;(setq use-package-always-ensure t
+;;      use-package-expand-minimally t))
 #+end_src
-*** externos
-**** which-key
-Prompt mostrando as combinações de teclas possíveis, 
-*extremamente* útil. Não preciso ir ao quinto dos 
-infernos para achar as teclas de atalho.
-#+begin_src emacs-lisp
-(use-package which-key)
-(which-key-mode)
-#+end_src
-#+end_src
+
 ** scripts
 Basicamente shell scripts, só que executados no emacs.
+Não sei ainda quais scripts eu vou colocar aqui.
 *** up
 Um script que faz o upload de arquivos para o [[https://0x0.st][0x0.st]].
 Ele usa a sua seleção do cursor para procurar o arquivo, 
 depois disso ele faz o upload e entrega a url do arquivo.
+
 #+begin_src emacs-lisp
-(defun up/file()
-(interactive)
-(setq file (buffer-substring (region-beginning)(region-end)))
-(compile (concat "find ~/ -iname " 
-		 file 
-		 " -type f -print0" 
-		 "|" 
-		 "xargs -0 -I \"{}\" curl -s -F\"file=@{}\" http://0x0.st"))
+(defun upload()
+  (interactive)
+  (setq file (buffer-substring (region-beginning)(region-end)))
+  (compile (concat "find ~/ -iname " 
+		   file 
+		   " -type f -print0" 
+		   "|" 
+		   "xargs -0 -I \"{}\" curl -s -F\"file=@{}\" http://0x0.st"))
 )
 #+end_src
 * teclas de atalho
-** lista
+** Padrões
+
+Uma lista das teclas de atalho que acho importantes, 
+úteis ou simplesmente interessantes.
+
  |----------------------+------------------------------------------------------+------|
  | Tecla                | Ação                                                 | modo |
  |----------------------+------------------------------------------------------+------|
@@ -326,25 +352,20 @@ depois disso ele faz o upload e entrega a url do arquivo.
  | C-x C-x (rápido)     | C-x                                                  | cua  |
  | C-c C-c (rápido)     | C-c                                                  | cua  |
  |----------------------+------------------------------------------------------+------|
-** definições
+** Customizadas
+Lugar onde guardo teclas de atalhos customizadas.
 #+begin_src emacs-lisp
-(defun openmail()
-(interactive)
-(mail/main)
-(rmail-input rmail-file-name)
-)
-
-(keymap-global-set "C-x C-b" 'ibuffer)
-(keymap-global-set "s-/ r" 'restart-emacs)
-(keymap-global-set "s-/ s" 'eshell)
-(keymap-global-set "s-/ b" 'battery)
-(keymap-global-set "s-/ e" 'irc)
-(keymap-global-set "s-/ m" 'openmail)
-(keymap-global-set "s-/ u" 'up/file)
-(keymap-global-set "s-/ c" 'compile)
-(keymap-global-set "s-/ g g" 'magit)
-(keymap-global-set "s-/ g c" 'magit-clone)
-(keymap-global-set "M-<insert>" 'dabbrev-expand)
-(keymap-global-set "<insert>" 'dabbrev-completion)
+(keymap-global-set	"C-x C-b"	 'ibuffer)
+(keymap-global-set	"s-/ r"		 'restart-emacs)
+(keymap-global-set	"s-/ s"		 'eshell)
+(keymap-global-set	"s-/ b"		 'battery)
+(keymap-global-set	"s-/ e"		 'irc)
+(keymap-global-set	"s-/ m"		 'openmail)
+(keymap-global-set	"s-/ u"		 'upload)
+(keymap-global-set	"s-/ c"		 'compile)
+(keymap-global-set	"s-/ g g"	 'magit)
+(keymap-global-set	"s-/ g c"	 'magit-clone)
+(keymap-global-set	"M-<insert>"	 'dabbrev-expand)
+(keymap-global-set	"<insert>"	 'dabbrev-completion)
 #+end_src
 
