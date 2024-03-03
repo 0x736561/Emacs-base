@@ -273,6 +273,9 @@ mas eu vou deixar um bloco com uma configuração do use-package.
 
 *** use-package
 #+begin_src emacs-lisp
+;;(require 'package)
+;;(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;;(package-initialize)
 ;;(require 'use-package-ensure)
 ;;(unless (package-installed-p 'use-package)
 ;;  (package-refresh-contents)
