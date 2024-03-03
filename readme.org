@@ -90,6 +90,7 @@ Definições de variáveis globais.
 (setq org-edit-src-content-indentation 0)
 (setq epa-pinentry-mode 'loopback)
 (setq org-hide-leading-stars t)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil)))
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
 		   (abbreviate-file-name (buffer-file-name))
