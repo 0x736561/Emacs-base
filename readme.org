@@ -143,6 +143,7 @@ Melhor isso do que a tela inicial padrão do Emacs.
 #+end_src
 
 ** Treesit
+#+begin_src emacs-lisp
 (setq treesit-language-source-alist
    '((bash "https://github.com/tree-sitter/tree-sitter-bash")
      (cmake "https://github.com/uyha/tree-sitter-cmake")
@@ -165,7 +166,7 @@ Melhor isso do que a tela inicial padrão do Emacs.
    (python-mode . python-ts-mode)
    (c-mode . c-ts-mode)))
 ;;(mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
-
+#+end_src
 ** pacotes externos
 
 Bem, é aqui onde os pacotes externos podem ser colocados e 
